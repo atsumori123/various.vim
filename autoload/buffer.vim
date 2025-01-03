@@ -115,7 +115,7 @@ function! buffer#NextPrevBuffer(direction) abort
 	else
 		if empty(&buftype)
 			execute a:direction
-			if &buftype == 'quickfix'
+			if &buftype == 'quickfix' || &buftype == 'terminal'
 				execute a:direction
 			endif
 		endif

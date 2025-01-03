@@ -27,7 +27,6 @@ function! s:make_menu() abort
 	call add(menu, "   i - Case sensitive [" . (&ignorecase ? "Off" : "On") . "]")
 	call add(menu, "")
 	call add(menu, " [ etc ]")
-	call add(menu, "   n - Terminal")
 	call add(menu, "   e - Reset errorformat")
 	call add(menu, "   p - Set file path to clipboard")
 	call add(menu, "   d - Change current directory")
@@ -202,18 +201,6 @@ function! s:cmemo_selected_handler(key) abort
 		" Search-case (noignorecase / ignorecase)
 		call s:close_window()
 		execute &ignorecase ? 'set noignorecase' : 'set ignorecase'
-
-	" [ etc ]
-	elseif a:key == "n"
-		call s:close_window()
-		execute 'lcd '.expand("%:h")
-		if has('nvim')
-			belowright new
-			terminal
-			startinsert
-		else
-			bot terminal
-		endif
 
 	elseif a:key == "e"
 		" Reset errorformat
