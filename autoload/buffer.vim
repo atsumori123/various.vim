@@ -2,6 +2,13 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 "-------------------------------------------------------
+" warning
+"-------------------------------------------------------
+function! s:warning(msg) abort
+	echohl WarningMsg | echomsg a:msg | echohl None
+endfunction
+
+"-------------------------------------------------------
 " selected_buffer
 "-------------------------------------------------------
 function! s:selected_buffer(pos) abort
@@ -21,7 +28,7 @@ endfunction
 "-------------------------------------------------------
 function! s:delete_buffer(pos) abort
 	if line('$') <= 1
-		echohl WarningMsg | echomsg "Cannot delete because number of buffers is 1" | echohl None
+		call s:warning("Cannot delete because number of buffers is 1")
 		return
 	endif
 
@@ -96,7 +103,7 @@ function! buffer#NextPrevBuffer(direction) abort
 
 		if a:direction == 'bnext'
 			if qfid >= qfnum
-				echohl WarningMsg | echomsg 'qflist: top of stack' | echohl None
+				call s:warning('qflist: top of stack')
 			else
 				silent cnewer
 				echo "\r"
@@ -104,7 +111,7 @@ function! buffer#NextPrevBuffer(direction) abort
 			endif
 		else
 			if qfid <= 1
-				echohl WarningMsg | echomsg 'qflist: bottom of stack' | echohl None
+				call s:warning('qflist: bottom of stack')
 			else
 				silent colder
 				echo "\r"
@@ -126,23 +133,25 @@ endfunction
 " buffer#Close
 "---------------------------------------------------
 function! buffer#Close() abort
+	" get current buffer number
 	let bnr = bufnr('%')
+	let changed = getbufinfo(bnr)[0].changed
 
-	" Check buffer modified
-	if getbufinfo(bnr)[0].changed
-		echohl WarningMsg | echomsg 'No changes saved. Please select operation. [w:Write, c:Cancel, d:Discard ] ? ' | echohl None
+	" Check modified
+	if changed
+		call s:warning('No changes saved. Please select operation. [w:Write, c:Cancel, d:Discard ] ? ')
 		let key = nr2char(getchar())
 		if key == 'w'
-			let filename = ''
+			" write
 			if bufname("%") == ""
 				let filename = input('input filename ? ', getcwd().'\', 'file')
 				if empty(filename) | return | endif
 			endif
 			silent! execute 'write '.filename
-
 		elseif key == 'd'
-
+			" discard
 		else
+			" cancel
 			return
 		endif
 	endif
@@ -163,18 +172,20 @@ function! buffer#Close() abort
 		bdelete
 
 	else
-		" list up hidden buffers
 		let hidden_bufs = filter(copy(bufs),'len(getbufinfo(v:val)[0].windows) == 0')
-
 		if len(hidden_bufs)
+			" if hedden buffer exist, show hidden buffer
 			execute 'buffer'.hidden_bufs[0]
+			execute 'bdelete! '.bnr
+		elseif !len(bufs) && !empty(bufname(bnr)) || changed
+			" if close buffer is last, make new buffer (dummy)
+			enew
+			execute 'bdelete! '.bnr
+		elseif len(getwininfo()) > 1 && len(bufs)
+			execute 'bdelete! '.bnr
+		else
+			call s:warning('Can not close because last buffer.')
 		endif
-
-		if !len(bufs)
-			cclose
-		endif
-
-		execute 'bdelete! '.bnr
 	endif
 endfunction
 
