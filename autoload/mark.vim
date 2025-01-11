@@ -41,10 +41,11 @@ endfunction
 " selected_mark
 "-------------------------------------------------------
 function! s:selected_mark(pos) abort
+	let winnr = winnr()
 	let key = split(getline(a:pos))
-	silent! close
 	execute 'wincmd p'
 	execute "'".key[0]
+	silent! winnr.close
 endfunction
 
 "-------------------------------------------------------
@@ -82,7 +83,7 @@ function! s:custom_settings() abort
 
 	" set keymap
 	nnoremap <buffer> <silent> <CR> :call <SID>selected_mark(line('.'))<CR>
-	nnoremap <buffer> <silent> d :call <SID>delete_mark(line('.'))<CR>
+	nnoremap <buffer> <silent> dd :call <SID>delete_mark(line('.'))<CR>
 	nnoremap <buffer> <silent> a :call <SID>add_mark()<CR>
 	nnoremap <buffer> <silent> q :close<CR>
 endfunction
