@@ -120,11 +120,32 @@ function! buffer#NextPrevBuffer(direction) abort
 		endif
 
 	else
-		if empty(&buftype)
-			execute a:direction
-			if &buftype == 'quickfix' || &buftype == 'terminal'
-				execute a:direction
-			endif
+		if !empty(&buftype)
+			return
+		endif
+
+		" get bufnr list
+		let ls = split(execute(":ls"), "\n")
+		call map(ls, 'str2nr(split(v:val, " ")[0])')
+
+		" remove special buffer
+		let ls = filter(ls, 'getbufvar(v:val, "&buftype") == ""')
+
+		" count of list
+		let len = len(ls)
+
+		" get index of current buffer
+		let ofs = index(ls, bufnr("%"))
+
+		" if ofs == -1, next(prev) buffer is ls[0]
+		if ofs < 0 | let ofs = (a:direction == 'bnext' ? len - 1 : 1) | endif
+
+		if len > 1
+			" get next(prev) bufnr
+			let ofs += (a:direction == 'bnext' ? 1 : -1)
+			let ofs = (ofs + len) % len
+
+			execute 'buffer '.ls[ofs]
 		endif
 	endif
 endfunction
@@ -176,7 +197,9 @@ function! buffer#Close() abort
 		if len(hidden_bufs)
 			" if hedden buffer exist, show hidden buffer
 			execute 'buffer'.hidden_bufs[0]
-			execute 'bdelete! '.bnr
+			if buflisted(bnr)
+				execute 'bdelete! '.bnr
+			endif
 		elseif !len(bufs) && !empty(bufname(bnr)) || changed
 			" if close buffer is last, make new buffer (dummy)
 			enew
