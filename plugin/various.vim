@@ -16,6 +16,7 @@ nnoremap <silent> <Plug>(various-quickfix) :<C-U>call preview#Quickfix()
 nnoremap <silent> <Plug>(various-display-in-center) :<C-U>call etc#DisplayInCenter()
 nnoremap <silent> <Plug>(various-toggle-terminal) :<C-U>call terminal#ToggleTerminal()
 tnoremap <silent> <Plug>(various-toggle-terminal) :<C-U> <C-\><C-n>:call terminal#ToggleTerminal()
+tnoremap <silent> <Plug>(various-toggle-terminal-rotate) :<C-U> <C-\><C-n>:call terminal#ToggRotate()
 
 command! -nargs=0 -range Replace call etc#Replace(<range>)
 command! -nargs=0 -range Tips call tips#Tips(<range>, <line1>, <line2>)
