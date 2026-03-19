@@ -116,10 +116,10 @@ function! s:reset_errorformat() abort
 
 	if len(bufs) && bufwinnr(bufs[0]) > 0
 		exe bufwinnr(bufs[0]) . 'wincmd w'
-		if !has('win32') && exists('g:GR_GrepCommand') && g:GR_GrepCommand == "grep"
-			execute 'set errorformat=%f\|%l\|\ %m'
-		else
+		if !exists('g:GR_GrepCommand') || g:GR_GrepCommand == "internal"
 			execute 'set errorformat=%f\|%l\ col\ \%c-\%k\|\ %m'
+		else
+			execute 'set errorformat=%f\|%l\|\ %m'
 		endif
 		silent cgetbuffer
 		set modifiable
