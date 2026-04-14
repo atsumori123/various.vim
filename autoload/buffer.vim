@@ -124,28 +124,36 @@ function! buffer#NextPrevBuffer(direction) abort
 			return
 		endif
 
-		" get bufnr list
-		let ls = split(execute(":ls"), "\n")
-		call map(ls, 'str2nr(split(v:val, " ")[0])')
-
-		" remove special buffer
-		let ls = filter(ls, 'getbufvar(v:val, "&buftype") == ""')
-
-		" count of list
-		let len = len(ls)
-
-		" get index of current buffer
-		let ofs = index(ls, bufnr("%"))
-
-		" if ofs == -1, next(prev) buffer is ls[0]
-		if ofs < 0 | let ofs = (a:direction == 'bnext' ? len - 1 : 1) | endif
-
-		if len > 1
-			" get next(prev) bufnr
+		if exists('g:stline_buffers')
+			let ofs = index(g:stline_buffers, bufnr("%"))
 			let ofs += (a:direction == 'bnext' ? 1 : -1)
-			let ofs = (ofs + len) % len
+			let ofs = (ofs < 0) ? len(g:stline_buffers) - 1 : ofs % len(g:stline_buffers)
+			execute 'buffer '.g:stline_buffers[ofs]
 
-			execute 'buffer '.ls[ofs]
+		else
+			" get bufnr list
+			let ls = split(execute(":ls"), "\n")
+			call map(ls, 'str2nr(split(v:val, " ")[0])')
+
+			" remove special buffer
+			let ls = filter(ls, 'getbufvar(v:val, "&buftype") == ""')
+
+			" count of list
+			let len = len(ls)
+
+			" get index of current buffer
+			let ofs = index(ls, bufnr("%"))
+
+			" if ofs == -1, next(prev) buffer is ls[0]
+			if ofs < 0 | let ofs = (a:direction == 'bnext' ? len - 1 : 1) | endif
+
+			if len > 1
+				" get next(prev) bufnr
+				let ofs += (a:direction == 'bnext' ? 1 : -1)
+				let ofs = (ofs + len) % len
+
+				execute 'buffer '.ls[ofs]
+			endif
 		endif
 	endif
 endfunction
