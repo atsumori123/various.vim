@@ -23,7 +23,7 @@ function! s:make_menu() abort
 	call add(menu, "   t - Tabstop toggle 4/8 [" . &tabstop . "]")
 	call add(menu, "   m - Modifiable [" . (&modifiable ? "+" : "-") ."]")
 	call add(menu, "   r - R/W control [" . (&readonly ? "RO" : "RW") . "]")
-	call add(menu, "   c - Disply control code [" . (&list ? "On" : "Off") . "]")
+	call add(menu, "   c - Visualization of control code [" . (&list ? "On" : "Off") . "]")
 	call add(menu, "   i - Case sensitive [" . (&ignorecase ? "Off" : "On") . "]")
 	call add(menu, "")
 	call add(menu, " [ etc ]")
@@ -33,16 +33,16 @@ function! s:make_menu() abort
 	call add(menu, "       [".pass."]")
 	call add(menu, "   q - Quit")
 
-	let menu[0] .= s:space(menu[0]) . " [ Tab and space conversion ]"
-	let menu[1] .= s:space(menu[1]) . "   1 - Replace spaces with tabs (space2tab)"
-	let menu[2] .= s:space(menu[2]) . "   2 - Replace tabs with spaces (tab2space)"
-	let menu[3] .= s:space(menu[3]) . "   3 - Remove spaces and tabs at end of lines"
+	let menu[0] .= s:space(menu[0]) . " [ Tab and Space ]"
+	let menu[1] .= s:space(menu[1]) . "   1 - Space to Tab"
+	let menu[2] .= s:space(menu[2]) . "   2 - Tab to Space"
+	let menu[3] .= s:space(menu[3]) . "   3 - Remove trailin Sapces and tabs from lines"
 	let menu[4] .= ""
-	let menu[5] .= s:space(menu[5]) . " [ Encording conversion ]"
+	let menu[5] .= s:space(menu[5]) . " [ Encording ]"
 	let menu[6] .= s:space(menu[6]) . "   4 - Reopen with specified encording"
 	let menu[7] .= s:space(menu[7]) . "   5 - Convert to specified encording"
 	let menu[8] .= ""
-	let menu[9] .= s:space(menu[9]) . " [ NL code conversion ]"
+	let menu[9] .= s:space(menu[9]) . " [ NL ]"
 	let menu[10].= s:space(menu[10]). "   6 - Reopen with specified NL-code"
 	let menu[11].= s:space(menu[11]). "   7 - Convert to specified NL-code"
 	let menu[12].= s:space(menu[12]). "   8 - Remove NL-code"

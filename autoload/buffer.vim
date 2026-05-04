@@ -120,7 +120,7 @@ function! buffer#NextPrevBuffer(direction) abort
 		endif
 
 	else
-		if !empty(&buftype)
+		if !buflisted(bufnr('%'))
 			return
 		endif
 
@@ -162,62 +162,42 @@ endfunction
 " buffer#Close
 "---------------------------------------------------
 function! buffer#Close() abort
-	" get current buffer number
-	let bnr = bufnr('%')
-	let changed = getbufinfo(bnr)[0].changed
+	let bt = &buftype
+	let nr = bufnr('%')
 
-	" Check modified
-	if changed
-		call s:warning('No changes saved. Please select operation. [w:Write, c:Cancel, d:Discard ] ? ')
+	if &modified
+		call s:warning('Discard the changes ? [y/n] ')
 		let key = nr2char(getchar())
-		if key == 'w'
-			" write
-			if bufname("%") == ""
-				let filename = input('input filename ? ', getcwd().'\', 'file')
-				if empty(filename) | return | endif
-			endif
-			silent! execute 'write '.filename
-		elseif key == 'd'
-			" discard
-		else
-			" cancel
+		redraw
+		echo ""
+		if key !=# 'y'
 			return
 		endif
 	endif
 
-	" list up buffers exclude special buffer
-	let bufs = filter(range(1, bufnr('$')), '
-			\ buflisted(v:val)
-			\ && getbufvar(v:val, "&buftype") == ""
-			\ && v:val != bnr
-			\ ')
-
-	if &buftype == 'quickfix'
-		" current window is QuickFix
+	if bt ==# 'quickfix'
+		" カレントバッファがQuickfixの場合
 		cclose
-
-	elseif &buftype != ''
-		" current window is special buffer
-		bdelete
-
-	else
-		let hidden_bufs = filter(copy(bufs),'len(getbufinfo(v:val)[0].windows) == 0')
-		if len(hidden_bufs)
-			" if hedden buffer exist, show hidden buffer
-			execute 'buffer'.hidden_bufs[0]
-			if buflisted(bnr)
-				execute 'bdelete! '.bnr
-			endif
-		elseif !len(bufs) && !empty(bufname(bnr)) || changed
-			" if close buffer is last, make new buffer (dummy)
-			enew
-			execute 'bdelete! '.bnr
-		elseif len(getwininfo()) > 1 && len(bufs)
-			execute 'bdelete! '.bnr
-		else
-			call s:warning('Can not close because last buffer.')
-		endif
+		return
 	endif
+
+	if (bt ==# 'nofile' || bt !=# '') && !buflisted(nr)
+		" 特別なバッファタイプ(バッファ名はあるがファイルとして存在しない)の場合
+		bdelete
+		return
+	endif
+
+	" カレントバッファ以外で、ファイルとして存在、または新規ファイルのバッファリストを作成
+	let buflist = map(getbufinfo({'buflisted': 1}), 'v:val.bufnr')
+	call filter(buflist, 'v:val != nr && (filereadable(bufname(v:val)) || empty(getbufvar(v:val, "&buftype")))')
+
+	if len(buflist)
+		execute 'buffer' . buflist[0]
+	else
+		new
+	endif
+
+	execute 'bdelete! ' . nr
 endfunction
 
 let &cpoptions = s:save_cpo

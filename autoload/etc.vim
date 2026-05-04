@@ -38,7 +38,7 @@ function! etc#Replace(range) abort
 	if empty(target_pattern) | return | endif
 
 	let replace_pattern = input('# Replace pattern: ', target_pattern)
-	if empty(replace_pattern) | return | endif
+"	if empty(replace_pattern) | return | endif
 
 	let opt = input("# Replace option [w(Word Search)] [r(RegExp)] [Start line Number]: ")
 	if empty(opt) | let opt = "1" | endif
